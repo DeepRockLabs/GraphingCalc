@@ -87,7 +87,6 @@ double evaluate_expression(const char *expr, double x) {
     char temp_expr[MAX_EXPR_LENGTH * 2];
     strcpy(temp_expr, expr);
 
-    // Count open parentheses and add closing ones if needed
     int open_parens = 0;
     int len = strlen(temp_expr);
     for (int i = 0; i < len; i++) {
@@ -97,18 +96,15 @@ double evaluate_expression(const char *expr, double x) {
             if (open_parens > 0) {
                 open_parens--;
             } else {
-                // More closing than opening parentheses, invalid expression
                 return NAN;
             }
         }
     }
-    // Add closing parentheses if needed
     while (open_parens > 0) {
         strcat(temp_expr, ")");
         open_parens--;
     }
-    
-    // Replace 'x' with its value
+
     char x_str[32];
     snprintf(x_str, sizeof(x_str), "%f", x);
     char *pos = strstr(temp_expr, "x");
@@ -118,7 +114,6 @@ double evaluate_expression(const char *expr, double x) {
         pos = strstr(pos + strlen(x_str), "x");
     }
     
-    // Replace constants
     pos = strstr(temp_expr, "pi");
     while (pos != NULL) {
         memmove(pos + strlen("3.141592653589793"), pos + 2, strlen(pos) - 1);
@@ -140,7 +135,6 @@ double evaluate_expression(const char *expr, double x) {
         pos = strstr(pos + strlen("2.718281828459045"), "e");
     }
     
-    // Evaluate functions
     for (int i = 0; functions[i].name != NULL; i++) {
         char *func_pos = strstr(temp_expr, functions[i].name);
         while (func_pos != NULL) {
@@ -161,7 +155,6 @@ double evaluate_expression(const char *expr, double x) {
         }
     }
     
-    // Tokenize and evaluate arithmetic operations
     double values[MAX_EXPR_LENGTH];
     char operators[MAX_EXPR_LENGTH];
     int value_count = 0, operator_count = 0;
@@ -181,20 +174,20 @@ double evaluate_expression(const char *expr, double x) {
                 operators[operator_count++] = *token;
                 expecting_operator = 0;
             } else {
-                // Implicit multiplication
+            
                 operators[operator_count++] = '*';
                 expecting_operator = 0;
                 continue;
             }
         } else {
             if (*token == '-' && (token == temp_expr || is_operator(*(token-1)))) {
-                // Negative number
+                
                 values[value_count++] = -strtod(token+1, &end);
             } else {
                 values[value_count++] = strtod(token, &end);
             }
             if (end == token) {
-                // Invalid token
+                
                 return NAN;
             }
             token = end - 1;
@@ -203,7 +196,6 @@ double evaluate_expression(const char *expr, double x) {
         token++;
     }
     
-    // Apply operators in order of precedence
     for (int precedence = 3; precedence > 0; precedence--) {
         for (int i = 0; i < operator_count; i++) {
             if (get_operator_precedence(operators[i]) == precedence) {
@@ -248,11 +240,11 @@ void zoom(double factor) {
 }
 
 void zoom_in() {
-    zoom(0.8);  // Zoom in by 20%
+    zoom(0.8); 
 }
 
 void zoom_out() {
-    zoom(1.25);  // Zoom out by 25%
+    zoom(1.25);  
 }
 
 void reset_zoom() {
@@ -261,7 +253,7 @@ void reset_zoom() {
 }
 
 gboolean on_graph_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
-    if (event->button == 1) {  // Left mouse button
+    if (event->button == 1) { 
         int width = gtk_widget_get_allocated_width(widget);
         int height = gtk_widget_get_allocated_height(widget);
         
@@ -281,11 +273,9 @@ void draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     int width = gtk_widget_get_allocated_width(widget);
     int height = gtk_widget_get_allocated_height(widget);
     
-    // Clear background
     cairo_set_source_rgb(cr, 0.95, 0.95, 0.95);
     cairo_paint(cr);
     
-    // Draw grid
     cairo_set_source_rgba(cr, 0.8, 0.8, 0.8, 0.5);
     cairo_set_line_width(cr, 0.5);
     for (int i = 0; i <= 20; i++) {
@@ -297,8 +287,7 @@ void draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
         cairo_line_to(cr, width, y);
     }
     cairo_stroke(cr);
-    
-    // Draw axes
+
     cairo_set_source_rgb(cr, 0.2, 0.2, 0.2);
     cairo_set_line_width(cr, 1.0);
     cairo_move_to(cr, 0, height / 2);
@@ -306,8 +295,7 @@ void draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     cairo_move_to(cr, width / 2, 0);
     cairo_line_to(cr, width / 2, height);
     cairo_stroke(cr);
-    
-    // Draw axis labels
+
     cairo_set_font_size(cr, 10);
     char label[20];
     for (int i = (int)x_min; i <= (int)x_max; i++) {
@@ -324,8 +312,7 @@ void draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
         cairo_move_to(cr, width / 2 + 5, y + 5);
         cairo_show_text(cr, label);
     }
-    
-    // Draw graph
+
     cairo_set_source_rgb(cr, 0.2, 0.4, 0.9);
     cairo_set_line_width(cr, 2.0);
     int first_point = 1;
@@ -401,8 +388,8 @@ int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Modern TI-84 Style Calculator");
-    gtk_window_set_default_size(GTK_WINDOW(window), 400, 700);  // Increased height to accommodate new buttons
+    gtk_window_set_title(GTK_WINDOW(window), "CalcCalc");
+    gtk_window_set_default_size(GTK_WINDOW(window), 400, 700); 
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
 
